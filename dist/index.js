@@ -169,6 +169,7 @@ const log_1 = __importStar(__nccwpck_require__(1285));
 class Installer {
     constructor(appmapToolsURL, appmapToolsPath) {
         this.appmapToolsURL = appmapToolsURL;
+        this.diffPathSpec = `. ':(exclude,top)vendor' ':(exclude,top)node_modules'`;
         this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
     }
     ignoreDotAppmap() {
@@ -272,7 +273,7 @@ class Installer {
             const patchFileName = (0, path_1.join)('.appmap', 'appmap-install.patch');
             yield (0, executeCommand_1.executeCommand)(`git add -N .`);
             yield (0, promises_1.mkdir)('.appmap', { recursive: true });
-            yield (0, executeCommand_1.executeCommand)(`git diff > ${patchFileName}`);
+            yield (0, executeCommand_1.executeCommand)(`git diff -- ${this.diffPathSpec} > ${patchFileName}`);
             const patch = yield (0, promises_1.readFile)(patchFileName, 'utf8');
             (0, log_1.default)(log_1.LogLevel.Debug, `Patch file contents:\n${patch}`);
             return { filename: patchFileName, contents: patch };
@@ -480,6 +481,7 @@ function runInGitHub() {
             installAppMapTools: core.getBooleanInput('install-appmap-tools'),
             installAppMapLibrary: core.getBooleanInput('install-appmap-library'),
             buildPatchFile: core.getBooleanInput('build-patch-file'),
+            diffPathSpec: core.getInput('diff-path-spec'),
         });
     });
 }
@@ -502,6 +504,7 @@ function runLocally() {
         parser.add_argument('--install-appmap-tools', { default: true });
         parser.add_argument('--install-appmap-library', { default: true });
         parser.add_argument('--build-patch-file', { default: true });
+        parser.add_argument('--diff-path-spec');
         const options = parser.parse_args();
         (0, verbose_1.default)(options.verbose === 'true' || options.verbose === true);
         const directory = options.directory;
@@ -520,6 +523,7 @@ function runLocally() {
             installAppMapTools: options.install_appmap_tools,
             installAppMapLibrary: options.install_appmap_library,
             buildPatchFile: options.build_patch_file,
+            diffPathSpec: options.diff_path_spec,
         });
     });
 }

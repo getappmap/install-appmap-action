@@ -28,6 +28,7 @@ export async function runInGitHub(): Promise<void> {
     installAppMapTools: core.getBooleanInput('install-appmap-tools'),
     installAppMapLibrary: core.getBooleanInput('install-appmap-library'),
     buildPatchFile: core.getBooleanInput('build-patch-file'),
+    diffPathSpec: core.getInput('diff-path-spec'),
   });
 }
 
@@ -48,6 +49,7 @@ async function runLocally() {
   parser.add_argument('--install-appmap-tools', {default: true});
   parser.add_argument('--install-appmap-library', {default: true});
   parser.add_argument('--build-patch-file', {default: true});
+  parser.add_argument('--diff-path-spec');
 
   const options = parser.parse_args();
 
@@ -68,6 +70,7 @@ async function runLocally() {
     installAppMapTools: options.install_appmap_tools,
     installAppMapLibrary: options.install_appmap_library,
     buildPatchFile: options.build_patch_file,
+    diffPathSpec: options.diff_path_spec,
   });
 }
 

@@ -39,6 +39,11 @@ inputs:
     description: |
       Create a patch file of changes made by the installer.
     default: true
+  diff-path-spec:
+    description: |
+      Path specification to use when creating the patch file. If the patch file includes files that you don't want
+      to commit, you can use this option to exclude them.
+    default: ". ':(exclude,top)vendor' ':(exclude,top)node_modules'"
   verbose:
     description: Enable verbose logging.
     default: false

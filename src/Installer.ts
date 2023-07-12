@@ -14,6 +14,7 @@ export default class Installer {
   public installerName?: string;
   public buildFile?: string;
   public githubToken?: string;
+  public diffPathSpec = `. ':(exclude,top)vendor' ':(exclude,top)node_modules'`;
 
   constructor(public appmapToolsURL?: string, appmapToolsPath?: string) {
     this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
@@ -125,7 +126,7 @@ export default class Installer {
     const patchFileName = join('.appmap', 'appmap-install.patch');
     await executeCommand(`git add -N .`);
     await mkdir('.appmap', {recursive: true});
-    await executeCommand(`git diff > ${patchFileName}`);
+    await executeCommand(`git diff -- ${this.diffPathSpec} > ${patchFileName}`);
     const patch = await readFile(patchFileName, 'utf8');
     log(LogLevel.Debug, `Patch file contents:\n${patch}`);
     return {filename: patchFileName, contents: patch};

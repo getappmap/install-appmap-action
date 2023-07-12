@@ -17,15 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        if: ${{ github.event.pull_request.head.ref != '' }}
-        with:
-          # This is needed to see the version history, because
-          # checkout action doesn't fetch the base or head branches
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
-
-      - uses: actions/checkout@v3
-        if: ${{ github.event.pull_request.head.ref == '' }}
 
       - name: Install dependency libraries
         run: yarn install
@@ -48,27 +39,19 @@ jobs:
 
       - name: Test
         id: test
-        run: |
-          set +e
-          yarn appmap
-          exit_status=$?
-          echo "exit-status=$exit_status" >> $GITHUB_OUTPUT
+        run: yarn appmap
 
       - name: Archive AppMaps
-        if: ${{ github.event.pull_request.base.sha == '' }}
+        if: ${{ github.event_name != 'pull_request' }}
         uses: getappmap/archive-action@v1-pre.13
         with:
           verbose: true
 
       - name: Analyze AppMaps
-        if: ${{ github.event.pull_request.base.sha != '' }}
+        if: (success() || failure()) && ${{ github.event_name == 'pull_request' }}
         uses: getappmap/analyze-action@v1-pre.13
         with:
           base-revision: ${{ github.event.pull_request.base.sha }}
           head-revision: ${{ github.event.pull_request.head.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           verbose: true
-
-      - name: Report the exit status
-        if: steps.test.outputs.exit-status != 0
-        run: exit ${{ steps.test.outputs.exit-status }}

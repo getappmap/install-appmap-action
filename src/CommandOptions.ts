@@ -9,4 +9,5 @@ export interface CommandOptions {
   installAppMapTools?: boolean;
   installAppMapLibrary?: boolean;
   buildPatchFile?: boolean;
+  diffPathSpec?: string;
 }

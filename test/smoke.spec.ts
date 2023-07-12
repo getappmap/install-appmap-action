@@ -26,16 +26,19 @@ async function restoreFixtureFiles() {
 if (process.env.VERBOSE) verbose(true);
 
 describe('install-appmap-action', () => {
+  let installer: Installer;
+
   beforeEach(() => mkdir('tmp', {recursive: true}));
   beforeEach(() => process.chdir(join(__dirname, 'fixture', 'app')));
+  beforeEach(() => {
+    installer = new Installer(appmapToolsURL);
+    installer.appmapToolsPath = join(__dirname, '..', 'tmp', 'appmap-tools');
+    installer.appmapConfig = appmapConfig;
+  });
   afterEach(restoreFixtureFiles);
   afterEach(() => process.chdir(pwd));
 
   it('installs AppMap tools', async () => {
-    const installer = new Installer(appmapToolsURL);
-    installer.appmapToolsPath = join(__dirname, '..', 'tmp', 'appmap-tools');
-    installer.appmapConfig = appmapConfig;
-
     await installer.installAppMapTools();
     await installer.installAppMapLibrary();
     const patch = await installer.buildPatchFile();
@@ -45,5 +48,14 @@ describe('install-appmap-action', () => {
     );
     expect(await readFile('appmap.yml', 'utf8')).toEqual(appmapConfig);
     expect(patch.contents).toMatch(/\+install --no-interactive/);
+  });
+
+  it('diff path spec can be configured', async () => {
+    installer.diffPathSpec = `. ':(exclude)install.log'`;
+    await installer.installAppMapTools();
+    await installer.installAppMapLibrary();
+    const patch = await installer.buildPatchFile();
+
+    expect(patch.contents).not.toMatch(/\+install --no-interactive/);
   });
 });
